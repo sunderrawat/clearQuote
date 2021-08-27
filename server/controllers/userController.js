@@ -35,7 +35,7 @@ exports.getAllUser = async (req, res) => {
   try {
     //find user from id
     const user = await User.find();
-    
+
     //send success user found message
     res.status(200).json({
       status: "success",
@@ -87,16 +87,22 @@ exports.getUser = async (req, res) => {
 // update user
 exports.updateUser = async (req, res) => {
   try {
-    //find user from id and update
-    const updateUser = await User.findByIdAndUpdate(req.params.id, req.body);
+    //find user from id
+    const user = await User.findById(req.params.id).select("+password");
     //if no user find then send fail response
-    if (!updateUser) {
+    if (!user) {
       return res.status(404).json({
         status: "fail",
         statusCode: 404,
         message: "User not found with this id",
       });
     }
+    //update every field except role
+    for (value in req.body) {
+      if (value === "role") continue;
+      user[value] = req.body[value];
+    }
+    await user.save({ validateBeforeSave: false });
 
     res.status(200).json({
       status: "success",

@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 const User = require("./../model/userModel");
 
 exports.signUp = async (req, res) => {
@@ -9,6 +10,7 @@ exports.signUp = async (req, res) => {
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
     });
+    await newUser.genrateAuthToken();
     res.status(201).json({
       status: "success",
       statusCode: 201,
@@ -16,7 +18,7 @@ exports.signUp = async (req, res) => {
       data: newUser,
     });
   } catch (err) {
-      console.log(err)
+    console.log(err);
     res.status(500).json({
       status: "fail",
       statusCode: 500,
@@ -27,35 +29,23 @@ exports.signUp = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const user = await User.find({
-      email: req.body.email,
-      password: req.body.password,
+    const user = await User.findByCredentials(
+      req.body.email,
+      req.body.password
+    );
+    await user.genrateAuthToken();
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "user successfully login",
+      data: user,
     });
-    if (!user) {
-      return res
-        .status(404)
-        .json({
-          status: "fail",
-          statusCode: 404,
-          message: "Incorrect email or password",
-        });
-    }
-    res
-      .status(200)
-      .json({
-        status: "success",
-        statusCode: 200,
-        message: "user successfully login",
-        data: user,
-      });
   } catch (err) {
-      console.log(err)
-    res
-      .status(500)
-      .json({
-        status: "fail",
-        statusCode: 500,
-        message: "something went wrong",
-      });
+    console.log(err);
+    res.status(400).json({
+      status: "fail",
+      statusCode: 400,
+      message: `something went wrong ${err.message}`,
+    });
   }
 };
