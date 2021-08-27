@@ -16,6 +16,7 @@ exports.signUp = async (req, res) => {
       data: newUser,
     });
   } catch (err) {
+      console.log(err)
     res.status(500).json({
       status: "fail",
       statusCode: 500,
@@ -48,6 +49,7 @@ exports.login = async (req, res) => {
         data: user,
       });
   } catch (err) {
+      console.log(err)
     res
       .status(500)
       .json({

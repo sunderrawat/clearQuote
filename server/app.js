@@ -6,9 +6,9 @@ const app = express();
 app.use(express.json());
 
 //home url dummy response
-app.get("/", (req, res) => {
-  res.status(200).send("App is started...");
-});
+// app.get("/", (req, res) => {
+//   res.status(200).send("App is started...");
+// });
 
 //RESTfull api routes
 app.use("/api/v1/users", userRouter);

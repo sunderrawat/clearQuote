@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -15,9 +16,9 @@ const userSchema = new mongoose.Schema({
     validate: [validator.isEmail, "Email address is not valid"],
   },
   phone: {
-      type: Number,
-      unique: true,
-      required: [true, 'user must have an phone number']
+    type: Number,
+    unique: true,
+    required: [true, "user must have an phone number"],
   },
   photo: {
     type: String,
@@ -42,11 +43,27 @@ const userSchema = new mongoose.Schema({
       message: "password not matched",
     },
   },
+  //admin role only create in database
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
   createdAt: {
     type: Date,
     default: Date.now(),
-  }
+  },
 });
+
+//mongoose middelware for password encryption
+userSchema.pre('save', async function(next){
+    // make password encrypted before save and user creation
+    this.password = await bcrypt.hash(this.password, 12);
+
+    //delete confirm password field
+    this.passwordConfirm = undefined;
+    next();
+})
 
 const User = mongoose.model("User", userSchema);
 
